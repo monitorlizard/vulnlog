@@ -12,7 +12,6 @@ import dev.vulnlog.lib.model.VulnerabilityEntry
 import dev.vulnlog.lib.model.VulnlogFile
 import dev.vulnlog.lib.parse.createYamlMapper
 import dev.vulnlog.lib.parse.v1.V1Mapper
-import dev.vulnlog.lib.parse.v1.dto.VulnerabilityEntryDto
 import tools.jackson.databind.ObjectMapper
 import java.nio.file.Path
 
@@ -139,34 +138,6 @@ fun findNonExistingVulnIds(
  */
 fun lastReleaseFavoringPublished(releases: List<ReleaseEntry>): Release =
     releases.lastOrNull { it.publicationDate != null }?.id ?: releases.last().id
-
-/**
- * Serializes a [VulnerabilityEntryDto] object to a YAML-compatible string representation
- * with specific indentation adjustments for proper formatting.
- *
- * The YAML format adjusts the first line with a prefix `-` and indents subsequent lines with spaces.
- * This ensures that the resulting YAML is appropriately nested for inclusion in larger YAML structures.
- *
- * @param entry The [VulnerabilityEntryDto] object to be serialized.
- * @param mapper An instance of [ObjectMapper] used for converting the entry object into a raw JSON string.
- * @return A string representing the YAML-compatible serialized format of the given entry.
- */
-fun serializeEntryYaml(
-    entry: VulnerabilityEntryDto,
-    mapper: ObjectMapper,
-): String {
-    val raw = mapper.writeValueAsString(entry)
-    val lines =
-        raw
-            .lines()
-            .dropWhile { it.trimStart().startsWith("---") || it.isBlank() }
-            .dropLastWhile { it.isBlank() }
-
-    return lines
-        .mapIndexed { index, line ->
-            if (index == 0) "  - $line" else "    $line"
-        }.joinToString("\n")
-}
 
 /**
  * Inserts a YAML entry immediately after the "vulnerabilities:" header in the given file content.
